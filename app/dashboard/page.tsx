@@ -10,9 +10,12 @@ import {
   Loader2, 
   CheckCircle2, 
   AlertCircle,
-  FolderDown
+  FolderDown,
+  Sparkles,
+  MessageSquareText
 } from "lucide-react"
 import JSZip from "jszip"
+import ChatInterface from "@/components/ChatInterface"
 
 interface Course {
   id: string
@@ -27,6 +30,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState<string | null>(null) // courseId or "ALL"
   const [progress, setProgress] = useState({ current: 0, total: 0, status: "" })
+  
+  // AI Chat State
+  const [activeChat, setActiveChat] = useState<Course | null>(null)
+  const [chatContext, setChatContext] = useState("")
+  const [loadingChat, setLoadingChat] = useState(false)
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -42,6 +50,33 @@ export default function Dashboard() {
         })
     }
   }, [status])
+
+  const openAIChat = async (course: Course) => {
+    setActiveChat(course)
+    setLoadingChat(true)
+    setChatContext("Loading course context...")
+
+    try {
+      const res = await fetch(`/api/download/${course.id}`)
+      const { materials, error } = await res.json()
+
+      if (error) throw new Error(error)
+
+      if (!materials || materials.length === 0) {
+        setChatContext(`Course: ${course.name}. No specific materials found in this classroom.`)
+      } else {
+        const contextString = materials.map((m: any) => 
+          `- [${m.source}] ${m.title} (Assignment: ${m.assignmentTitle || "N/A"})`
+        ).join("\n")
+        setChatContext(`Course: ${course.name}\nSection: ${course.section || "N/A"}\n\nMaterials:\n${contextString}`)
+      }
+    } catch (err: any) {
+      console.error(err)
+      setChatContext(`Course: ${course.name}. (Failed to load full material list)`)
+    } finally {
+      setLoadingChat(false)
+    }
+  }
 
   const downloadCourseMaterials = async (courseId: string, courseName: string) => {
     setDownloading(courseId)
@@ -132,11 +167,11 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pb-20">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold mb-2">My Courses</h2>
-            <p className="text-zinc-400">Select a course to download all its materials.</p>
+            <h2 className="text-3xl font-bold mb-2 text-white">My Courses</h2>
+            <p className="text-zinc-400">Select a course to download all its materials or ask the AI.</p>
           </div>
           <button 
             disabled={downloading !== null}
@@ -158,16 +193,25 @@ export default function Dashboard() {
                 className="group relative p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-all overflow-hidden"
               >
                 <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-all">
-                    <BookOpen className="w-6 h-6" />
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-all">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <button
+                      onClick={() => openAIChat(course)}
+                      className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-purple-500/20 hover:border-purple-500/30 text-zinc-400 hover:text-purple-400 transition-all flex items-center gap-2 text-xs font-bold"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      ASK AI
+                    </button>
                   </div>
-                  <h3 className="text-xl font-bold mb-1 truncate">{course.name}</h3>
+                  <h3 className="text-xl font-bold mb-1 truncate text-white">{course.name}</h3>
                   <p className="text-zinc-500 text-sm mb-6 truncate">{course.section || "No Section"}</p>
                   
                   <button
                     onClick={() => downloadCourseMaterials(course.id, course.name)}
                     disabled={downloading !== null}
-                    className="w-full py-3 rounded-2xl bg-white/10 group-hover:bg-white text-white group-hover:text-black font-semibold transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white text-white hover:text-black font-semibold transition-all flex items-center justify-center gap-2"
                   >
                     {downloading === course.id ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -206,6 +250,14 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {activeChat && (
+        <ChatInterface 
+          courseName={activeChat.name} 
+          context={chatContext} 
+          onClose={() => setActiveChat(null)} 
+        />
+      )}
     </div>
   )
 }
