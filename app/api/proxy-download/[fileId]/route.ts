@@ -5,7 +5,7 @@ import { getGoogleDrive } from "@/lib/google"
 
 export async function GET(
   req: Request,
-  { params }: { params: { fileId: string } }
+  { params }: { params: Promise<{ fileId: string }> }
 ) {
   const session: any = await getServerSession(authOptions)
   const { fileId } = await params

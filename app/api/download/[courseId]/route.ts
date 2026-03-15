@@ -5,7 +5,7 @@ import { getGoogleClassroom } from "@/lib/google"
 
 export async function GET(
   req: Request,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
   const session: any = await getServerSession(authOptions)
   const { courseId } = await params
