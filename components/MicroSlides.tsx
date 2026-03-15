@@ -32,7 +32,7 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Ultra-Dense Study Sheet</h3>
+            <h3 className="text-lg font-bold text-white">Ultra-Dense Study Sheet <span className="text-[8px] text-zinc-600 opacity-50">v2.0.5</span></h3>
             <p className="text-xs text-zinc-500 font-medium mt-1">High-density textbook style for final revision.</p>
           </div>
         </div>

@@ -179,7 +179,7 @@ export default function Dashboard() {
       const { materials } = await res.json()
       
       setInsightsStage("AI Generating")
-      const insightRes = await fetch("/api/study-insights", {
+      const insightRes = await fetch("/api/study-insights-v2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseName: course.name, materials }),
