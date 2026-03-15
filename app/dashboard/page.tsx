@@ -166,15 +166,19 @@ export default function Dashboard() {
     }
   }
 
+  const [insightsStage, setInsightsStage] = useState<"Deep Parsing" | "AI Generating">("Deep Parsing")
+
   const handleStudyInsights = async (course: Course) => {
     setActiveStudyInsights(course)
     setLoadingInsights(true)
     setStudyData(null)
+    setInsightsStage("Deep Parsing")
 
     try {
       const res = await fetch(`/api/download/${course.id}`)
       const { materials } = await res.json()
       
+      setInsightsStage("AI Generating")
       const insightRes = await fetch("/api/study-insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -185,7 +189,7 @@ export default function Dashboard() {
       setStudyData(data)
     } catch (err: any) {
       console.error(err)
-      alert(`Failed to load study insights: ${err.message}`)
+      alert(`Study Insights failed: ${err.message}. (Parsing large PDFs can sometimes timeout on free plans; try again for a smaller course or wait a moment)`)
     } finally {
       setLoadingInsights(false)
     }
@@ -426,19 +430,28 @@ export default function Dashboard() {
 
             <div className="max-w-7xl mx-auto w-full p-6 sm:p-10">
               {loadingInsights ? (
-                <div className="flex flex-col items-center justify-center py-40">
-                  <div className="relative w-20 h-20 mb-8">
-                    <motion.div 
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 rounded-full border-2 border-dashed border-blue-500/20"
-                    />
-                    <Loader2 className="absolute inset-0 m-auto w-10 h-10 text-blue-500 animate-spin" />
+                <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8">
+                  <div className="relative mb-8">
+                    <div className="w-24 h-24 rounded-full border-4 border-purple-500/10 border-t-purple-500 animate-spin" />
+                    <Sparkles className="w-8 h-8 text-purple-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Analyzing Classroom...</h3>
-                  <p className="text-zinc-500 text-center max-w-sm">
-                    Gemini is scanning your materials to build a knowledge map and find the best tutorials.
+                  <h3 className="text-2xl font-bold mb-3 text-white">
+                    {insightsStage === "Deep Parsing" ? "Deep Parsing Materials..." : "AI Master-Class in Progress..."}
+                  </h3>
+                  <p className="text-zinc-400 max-w-sm leading-relaxed mb-6">
+                    {insightsStage === "Deep Parsing" 
+                      ? "We're reading every page of your PDFs and documents locally to extract full context. This may take a minute for large courses."
+                      : "Analyzing thousands of words to generate your encyclopedic study guide. Hold tight!"
+                    }
                   </p>
+                  <div className="w-64 h-2 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                      initial={{ width: "0%" }}
+                      animate={{ width: insightsStage === "Deep Parsing" ? "40%" : "90%" }}
+                      transition={{ duration: 15, ease: "linear" }}
+                    />
+                  </div>
                 </div>
               ) : studyData ? (
                 <motion.div 

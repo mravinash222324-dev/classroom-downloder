@@ -45,6 +45,7 @@ export async function GET(
           allMaterials.push({ 
             id: driveFile.id,
             title: driveFile.title, // This is the actual filename
+            mimeType: driveFile.mimeType,
             assignmentTitle: item.title,
             source: "CourseWork" 
           })
@@ -60,6 +61,7 @@ export async function GET(
           allMaterials.push({ 
             id: driveFile.id,
             title: driveFile.title,
+            mimeType: driveFile.mimeType,
             assignmentTitle: item.title,
             source: "Material" 
           })
@@ -75,6 +77,7 @@ export async function GET(
           allMaterials.push({ 
             id: driveFile.id,
             title: driveFile.title,
+            mimeType: driveFile.mimeType,
             assignmentTitle: "Announcement",
             source: "Announcement" 
           })

@@ -1,9 +1,19 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { getGoogleDrive } from "@/lib/google"
+import pdf from "pdf-parse"
+import mammoth from "mammoth"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
 export async function POST(req: Request) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || !session.accessToken) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   try {
     const { courseName, materials } = await req.json()
 
@@ -11,22 +21,52 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No materials provided for analysis" }, { status: 400 })
     }
 
-    const contextString = materials.map((m: any) => 
-      `- [${m.source}] ${m.title} (Assignment: ${m.assignmentTitle || "N/A"})`
-    ).join("\n")
+    const drive = getGoogleDrive(session.accessToken)
+    let aggregatedContent = `COURSE: ${courseName}\n\n`
 
-    const prompt = `You are a world-class academic summarizer. I will provide a list of materials from a Google Classroom course titled "${courseName}".
+    // Extract text from materials (Deep Parsing)
+    console.log(`[Insights] Deep parsing ${materials.length} materials...`)
     
-    TASK: Generate a COMPREHENSIVE full-module study sheet. It must cover EVERY major topic found across all materials. 
+    const parsingPromises = materials.map(async (m: any) => {
+      try {
+        if (!m.id || !m.mimeType) return `- [Metadata Only] ${m.title}`
+
+        // Only parse PDF and Docx to save time/tokens/resources
+        if (m.mimeType === "application/pdf" || m.mimeType === "application/vnd.google-apps.pdf") {
+          const res = await drive.files.get({ fileId: m.id, alt: "media" }, { responseType: "arraybuffer" })
+          const buffer = Buffer.from(res.data as ArrayBuffer)
+          const data = await pdf(buffer)
+          return `MATERIAL: ${m.title}\nCONTENT: ${data.text.slice(0, 10000)}...` // Cap per file
+        } 
+        else if (m.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+          const res = await drive.files.get({ fileId: m.id, alt: "media" }, { responseType: "arraybuffer" })
+          const buffer = Buffer.from(res.data as ArrayBuffer)
+          const { value } = await mammoth.extractRawText({ buffer })
+          return `MATERIAL: ${m.title}\nCONTENT: ${value.slice(0, 10000)}...`
+        }
+        
+        return `- [Metadata] ${m.title} (Type: ${m.mimeType})`
+      } catch (err: any) {
+        console.warn(`[Insights] Failed to parse ${m.title}:`, err.message)
+        return `- [Metadata] ${m.title} (Fetch failed)`
+      }
+    })
+
+    const results = await Promise.all(parsingPromises)
+    aggregatedContent += results.join("\n\n---\n\n")
+
+    const prompt = `You are an Encyclopedic Professor. I will provide extracted text from materials in the Google Classroom course "${courseName}".
     
-    Based on these materials, generate a JSON object with:
-    1. "knowledgeMap": A list of topics (nodes) and their relationships (edges).
-    2. "youtubeFinder": A list of 3 high-quality YouTube tutorial recommendations.
-    3. "studySections": A list of 14-16 VERY detailed study sections. Each section must be extremely dense with definitions, core concepts, formulas, and explanations. Do not skip any details. Think of it as a "complete module guide" compressed into a 3-column sheet. Each content block should be substantial in length.
-
-    Materials Context:
-    ${contextString}
-
+    TASK: Generate a VAST, ELABORATE, and MASTER-CLASS study sheet. It must be extremely dense with high-level academic content.
+    
+    Structure the study sheet with:
+    1. "knowledgeMap": A list of topics and their intricate relationships.
+    2. "youtubeRecommendations": 3 expert-level video searches.
+    3. "studySections": 25-32 detailed academic deep-dives. Each section must be a standalone lesson with definitions, bullet points, technical terms, and complex explanations. Do not abbreviate. Use all available space on multiple A4 columns.
+ 
+    RESOURCES CONTENT:
+    ${aggregatedContent.slice(0, 50000)} // Total context limit for sanity
+ 
     Return EXACTLY this JSON structure:
     {
       "knowledgeMap": {
@@ -34,40 +74,32 @@ export async function POST(req: Request) {
         "edges": [{ "from": "Topic A", "to": "Topic B", "label": "Connection type" }]
       },
       "youtubeRecommendations": [{ "title": "Topic Name", "searchQuery": "YouTube Search Term", "reason": "Why this is recommended" }],
-      "studySections": [{ "id": 1, "title": "Section Title", "content": "VERY detailed explanatory text. Use bullet points (•), numbered lists, and bold terms within the string where appropriate. Cover as much ground as possible." }]
-    }
+      "studySections": [{ "id": 1, "title": "Section Title", "content": "Encyclopedic detailed explanatory text. Use bullet points (•), bold terms, and complex structures. Fill the space with deep value." }]
+    }`
 
-    Ensure the data is accurate to the context provided. Do not include any text outside the JSON block.`
-
-    // Try these models in order of preference (same as chat route)
-    const modelsToTry = ["gemini-flash-latest", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"]
+    const modelsToTry = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-flash-latest", "gemini-pro"]
     let lastError;
 
     for (const modelName of modelsToTry) {
       try {
-        console.log(`Attempting Study Insights with model: ${modelName}`)
+        console.log(`[Insights] Attempting with: ${modelName}`)
         const model = genAI.getGenerativeModel({ model: modelName })
-        
         const result = await model.generateContent(prompt)
         const response = await result.response
         const text = response.text()
         
-        // Extract JSON from potential markdown blocks
         const jsonMatch = text.match(/\{[\s\S]*\}/)
         if (jsonMatch) {
           const data = JSON.parse(jsonMatch[0])
-          console.log(`Success with model: ${modelName}`)
           return NextResponse.json(data)
         }
       } catch (e: any) {
         lastError = e
-        console.warn(`Model ${modelName} failed for insights: ${e.message}`)
+        console.warn(`[Insights] Model ${modelName} failed: ${e.message}`)
       }
     }
 
-    throw new Error(
-      "All Gemini models failed (404). This usually means the 'Generative Language API' is not enabled or the API key doesn't have permission for these models."
-    )
+    throw new Error(lastError?.message || "All AI models failed")
 
   } catch (error: any) {
     console.error("Study Insights Error:", error)
