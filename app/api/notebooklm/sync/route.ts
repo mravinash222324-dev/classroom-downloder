@@ -6,9 +6,11 @@ import { NextResponse } from "next/server"
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
 
-  if (!session || !session.accessToken) {
+  if (!session || !(session as any).accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
+
+  const accessToken = (session as any).accessToken as string
 
   const { courseId, courseName } = await req.json()
 
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
   }
 
   const auth = new google.auth.OAuth2()
-  auth.setCredentials({ access_token: session.accessToken as string })
+  auth.setCredentials({ access_token: accessToken })
 
   const drive = google.drive({ version: "v3", auth })
   const classroom = google.classroom({ version: "v1", auth })
