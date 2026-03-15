@@ -82,21 +82,28 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
           /* Force A4 Portrait */
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 15mm 10mm;
           }
 
-          /* Hide EVERYTHING else */
-          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print, [role="dialog"], .fixed {
+          /* Disable all animations during print as they break layout fragments */
+          * {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+          }
+
+          /* Hide UI noise */
+          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print, [role="dialog"], .fixed, button {
             visibility: hidden !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: visible !important;
           }
 
           /* Show ONLY the study sheet root */
           #study-sheet-root, #study-sheet-root * {
             visibility: visible !important;
+            display: block !important;
           }
 
           #study-sheet-root {
@@ -111,7 +118,6 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            display: block !important;
           }
 
           #study-sheet-root > div {
@@ -122,13 +128,17 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             width: 100% !important;
           }
 
+          /* CRITICAL: Prevent overlapping and cutting */
           .break-inside-avoid {
+            display: block !important;
             break-inside: avoid-column !important;
             page-break-inside: avoid !important;
-            display: block !important;
-            width: 100% !important;
             margin-bottom: 8mm !important;
+            position: relative !important;
+            width: 100% !important;
           }
+          
+          h4 { border-bottom: 1pt solid #ccc !important; }
         }
       `}</style>
     </div>
