@@ -14,10 +14,16 @@ import {
   Sparkles,
   MessageSquareText,
   ExternalLink,
-  BrainCircuit
+  BrainCircuit,
+  Map,
+  Lightbulb,
+  X
 } from "lucide-react"
 import JSZip from "jszip"
 import ChatInterface from "@/components/ChatInterface"
+import KnowledgeMap from "@/components/KnowledgeMap"
+import YouTubeFinder from "@/components/YouTubeFinder"
+import MicroSlides from "@/components/MicroSlides"
 
 interface Course {
   id: string
@@ -41,6 +47,11 @@ export default function Dashboard() {
   // NotebookLM Sync State
   const [syncing, setSyncing] = useState<string | null>(null)
   const [syncSuccess, setSyncSuccess] = useState<{ courseName: string, url: string } | null>(null)
+
+  // Advanced Study Features State
+  const [activeStudyInsights, setActiveStudyInsights] = useState<Course | null>(null)
+  const [studyData, setStudyData] = useState<any>(null)
+  const [loadingInsights, setLoadingInsights] = useState(false)
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -155,6 +166,31 @@ export default function Dashboard() {
     }
   }
 
+  const handleStudyInsights = async (course: Course) => {
+    setActiveStudyInsights(course)
+    setLoadingInsights(true)
+    setStudyData(null)
+
+    try {
+      const res = await fetch(`/api/download/${course.id}`)
+      const { materials } = await res.json()
+      
+      const insightRes = await fetch("/api/study-insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseName: course.name, materials }),
+      })
+      const data = await insightRes.json()
+      if (data.error) throw new Error(data.error)
+      setStudyData(data)
+    } catch (err: any) {
+      console.error(err)
+      alert(`Failed to load study insights: ${err.message}`)
+    } finally {
+      setLoadingInsights(false)
+    }
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -248,18 +284,26 @@ export default function Dashboard() {
                   <h3 className="text-xl font-bold mb-1 truncate text-white">{course.name}</h3>
                   <p className="text-zinc-500 text-sm mb-6 truncate">{course.section || "No Section"}</p>
                   
-                  <button
-                    onClick={() => downloadCourseMaterials(course.id, course.name)}
-                    disabled={downloading !== null}
-                    className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white text-white hover:text-black font-semibold transition-all flex items-center justify-center gap-2"
-                  >
-                    {downloading === course.id ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Download className="w-5 h-5" />
-                    )}
-                    {downloading === course.id ? "Preparing..." : "Download Materials"}
-                  </button>
+                    <button
+                      onClick={() => downloadCourseMaterials(course.id, course.name)}
+                      disabled={downloading !== null}
+                      className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white text-white hover:text-black font-semibold transition-all flex items-center justify-center gap-2 mb-2"
+                    >
+                      {downloading === course.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Download className="w-5 h-5" />
+                      )}
+                      {downloading === course.id ? "Preparing..." : "Download Materials"}
+                    </button>
+
+                    <button
+                      onClick={() => handleStudyInsights(course)}
+                      className="w-full py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white font-semibold transition-all flex items-center justify-center gap-2"
+                    >
+                      <Map className="w-5 h-5" />
+                      STUDY INSIGHTS
+                    </button>
                 </div>
 
                 {downloading === course.id && (
@@ -306,12 +350,13 @@ export default function Dashboard() {
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
               className="bg-zinc-900 border border-white/10 p-8 rounded-[32px] max-w-lg w-full shadow-2xl"
             >
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">Sync Successful!</h3>
+              <h3 className="text-2xl font-bold mb-4 text-white">Sync Successful!</h3>
               <p className="text-zinc-400 mb-6 leading-relaxed">
                 I've organized the materials for <span className="text-white font-bold">{syncSuccess.courseName}</span> into a dedicated Drive folder. 
               </p>
@@ -353,6 +398,76 @@ export default function Dashboard() {
                 </button>
               </div>
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Study Insights Overlay */}
+      <AnimatePresence>
+        {activeStudyInsights && (
+          <div className="fixed inset-0 z-[70] bg-[#050505] flex flex-col overflow-y-auto">
+            <header className="sticky top-0 z-10 px-6 py-4 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500 flex items-center justify-center">
+                  <Lightbulb className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">Study Insights</h2>
+                  <p className="text-xs text-zinc-500 font-medium">{activeStudyInsights.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setActiveStudyInsights(null)}
+                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </header>
+
+            <div className="max-w-7xl mx-auto w-full p-6 sm:p-10">
+              {loadingInsights ? (
+                <div className="flex flex-col items-center justify-center py-40">
+                  <div className="relative w-20 h-20 mb-8">
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 rounded-full border-2 border-dashed border-blue-500/20"
+                    />
+                    <Loader2 className="absolute inset-0 m-auto w-10 h-10 text-blue-500 animate-spin" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Analyzing Classroom...</h3>
+                  <p className="text-zinc-500 text-center max-w-sm">
+                    Gemini is scanning your materials to build a knowledge map and find the best tutorials.
+                  </p>
+                </div>
+              ) : studyData ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="grid grid-cols-1 lg:grid-cols-12 gap-10 print-area"
+                >
+                  {/* Left Column: Knowledge Map & Tutorials */}
+                  <div className="lg:col-span-4 space-y-10">
+                    <section>
+                      <KnowledgeMap data={studyData.knowledgeMap} />
+                    </section>
+                    <section>
+                      <YouTubeFinder recommendations={studyData.youtubeRecommendations} />
+                    </section>
+                  </div>
+
+                  {/* Right Column: Micro Slides */}
+                  <div className="lg:col-span-8">
+                    <MicroSlides slides={studyData.microSlides} />
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="text-center py-40">
+                  <AlertCircle className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                  <p className="text-zinc-500">Failed to load insights. Please try again.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </AnimatePresence>
