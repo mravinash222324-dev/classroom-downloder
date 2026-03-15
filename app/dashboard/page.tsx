@@ -229,7 +229,7 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto pb-20">
+      <div id="dashboard-main-content" className="max-w-7xl mx-auto pb-20">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-8 sm:mb-12">
           <div className="max-w-md">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white">My Courses</h2>
@@ -447,7 +447,7 @@ export default function Dashboard() {
                   className="grid grid-cols-1 lg:grid-cols-12 gap-10 print-area"
                 >
                   {/* Left Column: Knowledge Map & Tutorials */}
-                  <div className="lg:col-span-4 space-y-10">
+                  <div id="interactive-study-tools" className="lg:col-span-4 space-y-10">
                     <section>
                       <KnowledgeMap data={studyData.knowledgeMap} />
                     </section>

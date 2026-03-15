@@ -94,12 +94,17 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             print-color-adjust: exact !important;
           }
 
-          /* Hide UI noise surgically */
-          nav, header, footer, .no-print, button, [role="dialog"] {
+          /* HIDE EVERYTHING UNNECESSARY */
+          nav, header, footer, button, .no-print,
+          #dashboard-main-content, 
+          #interactive-study-tools,
+          #study-insights-overlay header {
             display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
           }
 
-          /* Reset overflow and fixed positioning for print */
+          /* RESET CORE CONTAINERS */
           body, html, #__next, main {
             background: white !important;
             color: black !important;
@@ -107,36 +112,21 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             padding: 0 !important;
             height: auto !important;
             overflow: visible !important;
-            visibility: visible !important;
           }
 
-          /* Ensure the overlay container IS visible and behaves like a static block */
+          /* FORCE OVERLAY TO BE STATIC */
           #study-insights-overlay {
             position: static !important;
             display: block !important;
-            visibility: visible !important;
             background: white !important;
-            color: black !important;
             padding: 0 !important;
             margin: 0 !important;
             overflow: visible !important;
-            z-index: auto !important;
           }
 
-          /* Hide header inside overlay */
-          #study-insights-overlay header {
-            display: none !important;
-          }
-
-          /* Hide other content sections (Map, YouTube) inside overlay */
-          #study-insights-overlay .lg\\:col-span-4 {
-            display: none !important;
-          }
-
-          /* Force the sheet root to take full width */
+          /* FORCE SHEET TO TAKE FULL WIDTH */
           #study-sheet-root {
             display: block !important;
-            visibility: visible !important;
             width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
