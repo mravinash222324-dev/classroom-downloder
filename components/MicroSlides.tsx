@@ -82,42 +82,56 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
           /* Force A4 Portrait */
           @page {
             size: A4 portrait;
-            margin: 15mm 10mm;
+            margin: 10mm;
           }
 
-          /* Disable all animations during print as they break layout fragments */
+          /* Disable animations for print stability */
           * {
             animation: none !important;
             transition: none !important;
             transform: none !important;
           }
 
-          /* Hide UI noise */
-          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print, [role="dialog"], .fixed, button {
-            visibility: hidden !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+          /* Hide UI noise surgically */
+          nav, header, footer, .no-print, button, [role="dialog"], .fixed {
+            display: none !important;
           }
 
-          /* Show ONLY the study sheet root */
-          #study-sheet-root, #study-sheet-root * {
-            visibility: visible !important;
-            display: block !important;
-          }
-
-          #study-sheet-root {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
+          /* Ensure core layout is visible but unstyled */
+          body, html, #__next, main {
             background: white !important;
             color: black !important;
             margin: 0 !important;
             padding: 0 !important;
+            height: auto !important;
+            min-height: 100% !important;
+            visibility: visible !important;
+          }
+
+          /* Hide other dashboard content except the sheet root */
+          .max-w-7xl > *:not(#study-insights-container) {
+             display: none !important;
+          }
+          
+          /* Study Insights Overlay specific handling */
+          .fixed.inset-0.z-\[70\] {
+            position: relative !important;
+            display: block !important;
+            visibility: visible !important;
+            background: white !important;
+            overflow: visible !important;
+            z-index: auto !important;
+          }
+
+          #study-sheet-root {
+            display: block !important;
+            visibility: visible !important;
+            background: white !important;
+            color: black !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
+            width: 100% !important;
           }
 
           #study-sheet-root > div {
@@ -125,17 +139,14 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             column-count: 3 !important;
             column-gap: 8mm !important;
             column-fill: auto !important;
-            width: 100% !important;
           }
 
-          /* CRITICAL: Prevent overlapping and cutting */
           .break-inside-avoid {
             display: block !important;
             break-inside: avoid-column !important;
             page-break-inside: avoid !important;
             margin-bottom: 8mm !important;
             position: relative !important;
-            width: 100% !important;
           }
           
           h4 { border-bottom: 1pt solid #ccc !important; }
