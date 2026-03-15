@@ -55,21 +55,21 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
       </div>
 
       {/* The Sheet Container */}
-      <div className="bg-[#fcfcfc] text-[#1a1a1a] rounded-[24px] p-8 sm:p-12 shadow-2xl overflow-hidden print:p-0 print:bg-white print:shadow-none print:rounded-none">
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-10 space-y-8 print:columns-3 print:gap-8">
+      <div id="study-sheet-root" className="bg-[#fcfcfc] text-[#1a1a1a] rounded-[24px] p-8 sm:p-10 shadow-2xl overflow-hidden print:p-0 print:bg-white print:shadow-none print:rounded-none">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-6 print:columns-3 print:gap-6 print:space-y-4">
           {sections.map((section, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="break-inside-avoid mb-10"
+              transition={{ delay: i * 0.05 }}
+              className="break-inside-avoid mb-6"
             >
-              <h4 className="text-base font-black border-b-2 border-zinc-200 pb-1.5 mb-3 uppercase tracking-tight flex items-start gap-2 leading-none">
+              <h4 className="text-[12px] font-black border-b border-zinc-200 pb-1 mb-2 uppercase tracking-tight flex items-start gap-1.5 leading-none">
                 <span className="text-purple-600 tabular-nums">{section.id}.</span> 
                 {section.title}
               </h4>
-              <div className="text-[11px] leading-relaxed text-zinc-800 font-normal whitespace-pre-wrap">
+              <div className="text-[9px] leading-[1.3] text-zinc-900 font-normal whitespace-pre-wrap">
                 {section.content}
               </div>
             </motion.div>
@@ -79,23 +79,49 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
 
       <style jsx global>{`
         @media print {
-          body * { visibility: hidden !important; }
-          .print-area, .print-area * { visibility: visible !important; }
-          .print-area { 
-            position: absolute !important; 
-            left: 10mm !important; 
-            top: 10mm !important; 
-            width: calc(100% - 20mm) !important; 
+          /* Hide EVERYTHING by default */
+          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print {
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
           }
-          
-          /* Force columns on print */
-          .columns-1, .md\\:columns-2, .lg\\:columns-3 {
+
+          /* Show ONLY the study sheet root and its children */
+          #study-sheet-root, #study-sheet-root * {
+            visibility: visible !important;
+          }
+
+          #study-sheet-root {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+            color: black !important;
+            margin: 0 !important;
+            padding: 5mm !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+          }
+
+          /* Force high density columns on print */
+          #study-sheet-root .columns-1, 
+          #study-sheet-root .md\\:columns-2, 
+          #study-sheet-root .lg\\:columns-3 {
+            display: block !important;
             columns: 3 !important;
-            gap: 10mm !important;
+            column-gap: 5mm !important;
+            column-fill: auto !important;
           }
-          
-          /* Hide non-print UI elements */
-          .no-print { display: none !important; }
+
+          #study-sheet-root .break-inside-avoid {
+            break-inside: avoid !important;
+            display: block !important;
+            width: 100% !important;
+          }
         }
       `}</style>
     </div>

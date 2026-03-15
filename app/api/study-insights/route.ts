@@ -15,12 +15,14 @@ export async function POST(req: Request) {
       `- [${m.source}] ${m.title} (Assignment: ${m.assignmentTitle || "N/A"})`
     ).join("\n")
 
-    const prompt = `You are an expert educational analyst. I will provide a list of materials from a Google Classroom course titled "${courseName}".
+    const prompt = `You are a world-class academic summarizer. I will provide a list of materials from a Google Classroom course titled "${courseName}".
     
-    Based on these materials, generate a JSON object with three parts:
+    TASK: Generate a COMPREHENSIVE full-module study sheet. It must cover EVERY major topic found across all materials. 
+    
+    Based on these materials, generate a JSON object with:
     1. "knowledgeMap": A list of topics (nodes) and their relationships (edges).
     2. "youtubeFinder": A list of 3 high-quality YouTube tutorial recommendations.
-    3. "studySections": A list of 6-8 comprehensive study sections. Each section should be detailed (not just a summary) and follow a textbook/cheat-sheet style.
+    3. "studySections": A list of 10-12 VERY detailed study sections. Each section must be dense with definitions, core concepts, formulas, and explanations. Do not skip details. Think of it as a "cheat sheet" that contains almost everything from the module.
 
     Materials Context:
     ${contextString}
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
         "edges": [{ "from": "Topic A", "to": "Topic B", "label": "Connection type" }]
       },
       "youtubeRecommendations": [{ "title": "Topic Name", "searchQuery": "YouTube Search Term", "reason": "Why this is recommended" }],
-      "studySections": [{ "id": 1, "title": "Section Title", "content": "Detailed explanatory text including definitions, bullet points, or formulas. Make it dense and educational like a textbook page." }]
+      "studySections": [{ "id": 1, "title": "Section Title", "content": "VERY detailed explanatory text. Use bullet points (•), numbered lists, and bold terms within the string where appropriate. Cover as much ground as possible." }]
     }
 
     Ensure the data is accurate to the context provided. Do not include any text outside the JSON block.`
