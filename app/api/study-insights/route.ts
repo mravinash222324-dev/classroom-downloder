@@ -37,19 +37,35 @@ export async function POST(req: Request) {
 
     Ensure the data is accurate to the context provided. Do not include any text outside the JSON block.`
 
-    const modelName = "gemini-1.5-flash-latest"
-    const model = genAI.getGenerativeModel({ model: modelName })
-    
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
-    
-    // Extract JSON from potential markdown blocks
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error("Failed to parse AI response into JSON")
-    
-    const data = JSON.parse(jsonMatch[0])
-    return NextResponse.json(data)
+    // Try these models in order of preference (same as chat route)
+    const modelsToTry = ["gemini-flash-latest", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"]
+    let lastError;
+
+    for (const modelName of modelsToTry) {
+      try {
+        console.log(`Attempting Study Insights with model: ${modelName}`)
+        const model = genAI.getGenerativeModel({ model: modelName })
+        
+        const result = await model.generateContent(prompt)
+        const response = await result.response
+        const text = response.text()
+        
+        // Extract JSON from potential markdown blocks
+        const jsonMatch = text.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const data = JSON.parse(jsonMatch[0])
+          console.log(`Success with model: ${modelName}`)
+          return NextResponse.json(data)
+        }
+      } catch (e: any) {
+        lastError = e
+        console.warn(`Model ${modelName} failed for insights: ${e.message}`)
+      }
+    }
+
+    throw new Error(
+      "All Gemini models failed (404). This usually means the 'Generative Language API' is not enabled or the API key doesn't have permission for these models."
+    )
 
   } catch (error: any) {
     console.error("Study Insights Error:", error)
