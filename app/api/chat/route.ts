@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   try {
     const { messages, context } = await req.json()
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" })
 
     const systemPrompt = `You are a helpful Study Assistant for a Google Classroom. 
     You have access to the following classroom materials context:
