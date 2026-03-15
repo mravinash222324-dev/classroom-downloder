@@ -55,21 +55,21 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
       </div>
 
       {/* The Sheet Container */}
-      <div id="study-sheet-root" className="bg-[#fcfcfc] text-[#1a1a1a] rounded-[24px] p-8 sm:p-10 shadow-2xl overflow-hidden print:p-0 print:bg-white print:shadow-none print:rounded-none">
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-6 print:columns-3 print:gap-6 print:space-y-4">
+      <div id="study-sheet-root" className="bg-[#fcfcfc] text-[#1a1a1a] rounded-[24px] p-8 sm:p-10 shadow-2xl overflow-hidden print:p-0 print:bg-white print:shadow-none print:rounded-none w-full">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 print:columns-3 print:gap-8 w-full">
           {sections.map((section, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="break-inside-avoid mb-6"
+              className="break-inside-avoid mb-8 block"
             >
-              <h4 className="text-[12px] font-black border-b border-zinc-200 pb-1 mb-2 uppercase tracking-tight flex items-start gap-1.5 leading-none">
+              <h4 className="text-[12px] font-black border-b-2 border-zinc-200 pb-1 mb-2 uppercase tracking-tight flex items-start gap-1.5 leading-none">
                 <span className="text-purple-600 tabular-nums">{section.id}.</span> 
                 {section.title}
               </h4>
-              <div className="text-[9px] leading-[1.3] text-zinc-900 font-normal whitespace-pre-wrap">
+              <div className="text-[10px] leading-[1.35] text-zinc-900 font-normal whitespace-pre-wrap">
                 {section.content}
               </div>
             </motion.div>
@@ -79,16 +79,22 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
 
       <style jsx global>{`
         @media print {
-          /* Hide EVERYTHING by default */
-          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print {
+          /* Force A4 Portrait */
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+
+          /* Hide EVERYTHING else */
+          body, html, #__next, .min-h-screen, nav, header, section, footer, .no-print, [role="dialog"], .fixed {
             visibility: hidden !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden !important;
+            overflow: visible !important;
           }
 
-          /* Show ONLY the study sheet root and its children */
+          /* Show ONLY the study sheet root */
           #study-sheet-root, #study-sheet-root * {
             visibility: visible !important;
           }
@@ -102,25 +108,26 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             background: white !important;
             color: black !important;
             margin: 0 !important;
-            padding: 5mm !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-          }
-
-          /* Force high density columns on print */
-          #study-sheet-root .columns-1, 
-          #study-sheet-root .md\\:columns-2, 
-          #study-sheet-root .lg\\:columns-3 {
             display: block !important;
-            columns: 3 !important;
-            column-gap: 5mm !important;
-            column-fill: auto !important;
           }
 
-          #study-sheet-root .break-inside-avoid {
-            break-inside: avoid !important;
+          #study-sheet-root > div {
+            display: block !important;
+            column-count: 3 !important;
+            column-gap: 8mm !important;
+            column-fill: auto !important;
+            width: 100% !important;
+          }
+
+          .break-inside-avoid {
+            break-inside: avoid-column !important;
+            page-break-inside: avoid !important;
             display: block !important;
             width: 100% !important;
+            margin-bottom: 8mm !important;
           }
         }
       `}</style>
