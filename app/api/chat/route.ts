@@ -16,11 +16,22 @@ export async function POST(req: Request) {
     Use this context to answer the student's questions accurately and concisely. 
     If you don't know the answer based on the context, say you don't know, but try to be as helpful as possible within the scope of their studies.`
 
+    // Gemini requires the first message in history to be from 'user'
+    let history = messages.slice(0, -1).map((m: any) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content }],
+    }))
+
+    // Find the first user message and slice the history from there
+    const firstUserIndex = history.findIndex((m: any) => m.role === "user")
+    if (firstUserIndex !== -1) {
+      history = history.slice(firstUserIndex)
+    } else {
+      history = []
+    }
+
     const chat = model.startChat({
-      history: messages.slice(0, -1).map((m: any) => ({
-        role: m.role === "user" ? "user" : "model",
-        parts: [{ text: m.content }],
-      })),
+      history,
       generationConfig: {
         maxOutputTokens: 1000,
       },
