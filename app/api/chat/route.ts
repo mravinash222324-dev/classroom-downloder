@@ -7,7 +7,9 @@ export async function POST(req: Request) {
   try {
     const { messages, context } = await req.json()
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" })
+    // Try gemini-1.5-flash first, fallback to gemini-pro if needed
+    const modelName = "gemini-1.5-flash";
+    const model = genAI.getGenerativeModel({ model: modelName })
 
     const systemPrompt = `You are a helpful Study Assistant for a Google Classroom. 
     You have access to the following classroom materials context:
@@ -44,9 +46,18 @@ export async function POST(req: Request) {
     const response = await result.response
     const text = response.text()
 
+    if (!text) throw new Error("Empty response from AI")
+
     return NextResponse.json({ text })
   } catch (error: any) {
-    console.error("Chat Error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error("Chat Error Detail:", {
+      message: error.message,
+      stack: error.stack,
+      status: error.status,
+      details: error.errorDetails
+    })
+    return NextResponse.json({ 
+      error: "The AI is currently unavailable for this model. Please try again in a moment or check your API key permissions." 
+    }, { status: 500 })
   }
 }
