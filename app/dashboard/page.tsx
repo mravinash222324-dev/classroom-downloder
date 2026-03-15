@@ -12,7 +12,9 @@ import {
   AlertCircle,
   FolderDown,
   Sparkles,
-  MessageSquareText
+  MessageSquareText,
+  ExternalLink,
+  BrainCircuit
 } from "lucide-react"
 import JSZip from "jszip"
 import ChatInterface from "@/components/ChatInterface"
@@ -35,6 +37,10 @@ export default function Dashboard() {
   const [activeChat, setActiveChat] = useState<Course | null>(null)
   const [chatContext, setChatContext] = useState("")
   const [loadingChat, setLoadingChat] = useState(false)
+
+  // NotebookLM Sync State
+  const [syncing, setSyncing] = useState<string | null>(null)
+  const [syncSuccess, setSyncSuccess] = useState<{ courseName: string, url: string } | null>(null)
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -129,6 +135,26 @@ export default function Dashboard() {
     }
   }
 
+  const handleNotebookLMSync = async (courseId: string, courseName: string) => {
+    setSyncing(courseId)
+    try {
+      const res = await fetch("/api/notebooklm/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId, courseName }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      
+      setSyncSuccess({ courseName, url: data.url })
+    } catch (err: any) {
+      console.error(err)
+      alert(`Sync failed: ${err.message}`)
+    } finally {
+      setSyncing(null)
+    }
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -197,13 +223,27 @@ export default function Dashboard() {
                     <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-all">
                       <BookOpen className="w-6 h-6" />
                     </div>
-                    <button
-                      onClick={() => openAIChat(course)}
-                      className="px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500 hover:text-white text-purple-400 transition-all flex items-center gap-2 text-[11px] font-bold shadow-lg shadow-purple-500/5 group/ai"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 group-hover/ai:animate-pulse" />
-                      ASK STUDY AI
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={() => openAIChat(course)}
+                        className="px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500 hover:text-white text-purple-400 transition-all flex items-center gap-2 text-[11px] font-bold shadow-lg shadow-purple-500/5 group/ai"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 group-hover/ai:animate-pulse" />
+                        AI CHAT
+                      </button>
+                      <button
+                        onClick={() => handleNotebookLMSync(course.id, course.name)}
+                        disabled={syncing !== null}
+                        className="px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-600 hover:text-white text-blue-400 transition-all flex items-center gap-2 text-[11px] font-bold shadow-lg shadow-blue-500/5 group/notebook disabled:opacity-50"
+                      >
+                        {syncing === course.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <BrainCircuit className="w-3.5 h-3.5 group-hover/notebook:scale-110 transition-transform" />
+                        )}
+                        SYNC NOTEBOOK
+                      </button>
+                    </div>
                   </div>
                   <h3 className="text-xl font-bold mb-1 truncate text-white">{course.name}</h3>
                   <p className="text-zinc-500 text-sm mb-6 truncate">{course.section || "No Section"}</p>
@@ -258,6 +298,54 @@ export default function Dashboard() {
           onClose={() => setActiveChat(null)} 
         />
       )}
+
+      {/* Sync Success Modal */}
+      <AnimatePresence>
+        {syncSuccess && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-zinc-900 border border-white/10 p-8 rounded-[32px] max-w-lg w-full shadow-2xl"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Sync Successful!</h3>
+              <p className="text-zinc-400 mb-6 leading-relaxed">
+                I've organized the materials for <span className="text-white font-bold">{syncSuccess.courseName}</span> into a dedicated Drive folder. 
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Next Steps</p>
+                  <ol className="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+                    <li>Go to NotebookLM</li>
+                    <li>Choose "Google Drive" as source</li>
+                    <li>Select the <span className="text-purple-400">"{syncSuccess.courseName}"</span> folder</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a 
+                  href="https://notebooklm.google.com" 
+                  target="_blank" 
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all"
+                >
+                  Open NotebookLM <ExternalLink className="w-4 h-4" />
+                </a>
+                <button 
+                  onClick={() => setSyncSuccess(null)}
+                  className="px-6 py-3 bg-white/5 text-zinc-400 font-bold rounded-2xl hover:bg-white/10 transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
