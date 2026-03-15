@@ -26,7 +26,7 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 p-6 rounded-3xl bg-zinc-900 border border-white/5">
+      <div className="flex items-center justify-between gap-4 p-6 rounded-3xl bg-zinc-900 border border-white/5 no-print">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-purple-400">
             <FileText className="w-6 h-6" />
@@ -56,20 +56,20 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
 
       {/* The Sheet Container */}
       <div id="study-sheet-root" className="bg-[#fcfcfc] text-[#1a1a1a] rounded-[24px] p-8 sm:p-10 shadow-2xl overflow-hidden print:p-0 print:bg-white print:shadow-none print:rounded-none w-full">
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 print:columns-3 print:gap-8 w-full">
+        <div className="column-container">
           {sections.map((section, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="break-inside-avoid mb-8 block"
+              className="study-section"
             >
-              <h4 className="text-[12px] font-black border-b-2 border-zinc-200 pb-1 mb-2 uppercase tracking-tight flex items-start gap-1.5 leading-none">
+              <h4 className="section-title">
                 <span className="text-purple-600 tabular-nums">{section.id}.</span> 
                 {section.title}
               </h4>
-              <div className="text-[10px] leading-[1.35] text-zinc-900 font-normal whitespace-pre-wrap">
+              <div className="section-content">
                 {section.content}
               </div>
             </motion.div>
@@ -77,35 +77,51 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style jsx>{`
+        .column-container {
+          columns: 1;
+          gap: 1.5rem;
+        }
+        @media (min-width: 768px) { .column-container { columns: 2; } }
+        @media (min-width: 1024px) { .column-container { columns: 3; } }
+
+        .study-section {
+          break-inside: avoid;
+          margin-bottom: 2rem;
+          display: block;
+        }
+
+        .section-title {
+          font-size: 0.75rem;
+          font-weight: 900;
+          border-bottom: 2px solid #e1e1e1;
+          padding-bottom: 0.375rem;
+          margin-bottom: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: -0.01em;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.375rem;
+          line-height: 1;
+        }
+
+        .section-content {
+          font-size: 0.625rem;
+          line-height: 1.35;
+          color: #27272a;
+          white-space: pre-wrap;
+          font-weight: 400;
+        }
+
         @media print {
           /* Force A4 Portrait */
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 12mm 10mm;
           }
 
-          /* Disable animations for print stability */
-          * {
-            animation: none !important;
-            transition: none !important;
-            transform: none !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-
-          /* HIDE EVERYTHING UNNECESSARY */
-          nav, header, footer, button, .no-print,
-          #dashboard-main-content, 
-          #interactive-study-tools,
-          #study-insights-overlay header {
-            display: none !important;
-            height: 0 !important;
-            overflow: hidden !important;
-          }
-
-          /* RESET CORE CONTAINERS */
-          body, html, #__next, main {
+          /* Global Reset */
+          :global(body), :global(html), :global(#__next), :global(main) {
             background: white !important;
             color: black !important;
             margin: 0 !important;
@@ -114,8 +130,13 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             overflow: visible !important;
           }
 
-          /* FORCE OVERLAY TO BE STATIC */
-          #study-insights-overlay {
+          /* Hide UI */
+          :global(nav), :global(header), :global(footer), :global(.no-print), :global(button), :global([role="dialog"]), :global(.fixed:not(#study-insights-overlay)) {
+            display: none !important;
+          }
+
+          /* Isolate Overlay */
+          :global(#study-insights-overlay) {
             position: static !important;
             display: block !important;
             background: white !important;
@@ -124,31 +145,43 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             overflow: visible !important;
           }
 
-          /* FORCE SHEET TO TAKE FULL WIDTH */
+          :global(#study-insights-overlay header), :global(#interactive-study-tools), :global(#dashboard-main-content) {
+            display: none !important;
+          }
+
           #study-sheet-root {
             display: block !important;
             width: 100% !important;
-            margin: 0 !important;
             padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            background: white !important;
           }
 
-          #study-sheet-root > div {
+          .column-container {
             display: block !important;
             column-count: 3 !important;
             column-gap: 8mm !important;
-            column-fill: auto !important;
+            column-fill: balance !important; /* Tries to equalize column heights */
             width: 100% !important;
           }
 
-          .break-inside-avoid {
-            display: block !important;
+          .study-section {
             break-inside: avoid-column !important;
             page-break-inside: avoid !important;
-            margin-bottom: 8mm !important;
-            position: relative !important;
+            margin-bottom: 6mm !important;
+            display: block !important;
           }
-          
-          h4 { border-bottom: 1pt solid #ccc !important; }
+
+          .section-title {
+            border-bottom: 1pt solid #ccc !important;
+            font-size: 9pt !important;
+          }
+
+          .section-content {
+            font-size: 8pt !important;
+            color: black !important;
+          }
         }
       `}</style>
     </div>
