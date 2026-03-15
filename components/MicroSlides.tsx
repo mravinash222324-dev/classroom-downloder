@@ -90,48 +90,56 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             animation: none !important;
             transition: none !important;
             transform: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
 
           /* Hide UI noise surgically */
-          nav, header, footer, .no-print, button, [role="dialog"], .fixed {
+          nav, header, footer, .no-print, button, [role="dialog"] {
             display: none !important;
           }
 
-          /* Ensure core layout is visible but unstyled */
+          /* Reset overflow and fixed positioning for print */
           body, html, #__next, main {
             background: white !important;
             color: black !important;
             margin: 0 !important;
             padding: 0 !important;
             height: auto !important;
-            min-height: 100% !important;
-            visibility: visible !important;
-          }
-
-          /* Hide other dashboard content except the sheet root */
-          .max-w-7xl > *:not(#study-insights-container) {
-             display: none !important;
-          }
-          
-          /* Study Insights Overlay specific handling */
-          .fixed.inset-0.z-\[70\] {
-            position: relative !important;
-            display: block !important;
-            visibility: visible !important;
-            background: white !important;
             overflow: visible !important;
-            z-index: auto !important;
+            visibility: visible !important;
           }
 
-          #study-sheet-root {
+          /* Ensure the overlay container IS visible and behaves like a static block */
+          #study-insights-overlay {
+            position: static !important;
             display: block !important;
             visibility: visible !important;
             background: white !important;
             color: black !important;
             padding: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+            z-index: auto !important;
+          }
+
+          /* Hide header inside overlay */
+          #study-insights-overlay header {
+            display: none !important;
+          }
+
+          /* Hide other content sections (Map, YouTube) inside overlay */
+          #study-insights-overlay .lg\\:col-span-4 {
+            display: none !important;
+          }
+
+          /* Force the sheet root to take full width */
+          #study-sheet-root {
+            display: block !important;
+            visibility: visible !important;
             width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
           #study-sheet-root > div {
@@ -139,6 +147,7 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             column-count: 3 !important;
             column-gap: 8mm !important;
             column-fill: auto !important;
+            width: 100% !important;
           }
 
           .break-inside-avoid {

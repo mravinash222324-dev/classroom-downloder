@@ -405,7 +405,7 @@ export default function Dashboard() {
       {/* Study Insights Overlay */}
       <AnimatePresence>
         {activeStudyInsights && (
-          <div className="fixed inset-0 z-[70] bg-[#050505] flex flex-col overflow-y-auto">
+          <div id="study-insights-overlay" className="fixed inset-0 z-[70] bg-[#050505] flex flex-col overflow-y-auto">
             <header className="sticky top-0 z-10 px-6 py-4 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-blue-500 flex items-center justify-center">
