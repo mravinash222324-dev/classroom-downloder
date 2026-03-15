@@ -76,35 +76,39 @@ export default function ChatInterface({ courseName, context, onClose }: ChatInte
           y: 0, 
           scale: 1,
           filter: "blur(0px)",
-          height: isMinimized ? "72px" : (isExpanded ? "80vh" : "600px"),
-          width: isExpanded ? "600px" : "420px"
+          height: isMinimized 
+            ? "72px" 
+            : (isExpanded ? "80vh" : (typeof window !== 'undefined' && window.innerWidth < 640 ? "90vh" : "600px")),
+          width: typeof window !== 'undefined' && window.innerWidth < 640 
+            ? "100%" 
+            : (isExpanded ? "600px" : "420px")
         }}
         exit={{ opacity: 0, y: 50, scale: 0.9, filter: "blur(10px)" }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed bottom-6 right-6 bg-zinc-950/80 border border-white/10 rounded-[32px] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] z-50 overflow-hidden backdrop-blur-3xl"
+        className="fixed bottom-0 right-0 left-0 sm:bottom-6 sm:right-6 sm:left-auto bg-zinc-950/90 border-t sm:border border-white/10 rounded-t-[32px] sm:rounded-[32px] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] z-50 overflow-hidden backdrop-blur-3xl"
       >
         {/* Decorative Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent blur-md" />
 
         {/* Header */}
-        <div className="p-5 border-b border-white/5 flex items-center justify-between bg-gradient-to-b from-white/5 to-transparent">
-          <div className="flex items-center gap-4">
+        <div className="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between bg-gradient-to-b from-white/5 to-transparent">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#050505]" />
+              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-500 border-2 border-[#050505]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-[15px] font-bold text-white leading-none">Study AI</h3>
+                <h3 className="text-sm sm:text-[15px] font-bold text-white leading-none">Study AI</h3>
                 <span className="px-1.5 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider border border-purple-500/20">Pro</span>
               </div>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1 truncate max-w-[180px]">Teaching {courseName}</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-500 font-medium mt-1 truncate max-w-[140px] sm:max-w-[180px]">Teaching {courseName}</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
               className="p-2 hover:bg-white/5 rounded-xl text-zinc-400 transition-all active:scale-90 hidden sm:block"

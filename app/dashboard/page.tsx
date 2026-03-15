@@ -146,36 +146,36 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-8">
-      <nav className="flex justify-between items-center mb-12">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-[#050505] text-white p-4 sm:p-8">
+      <nav className="flex justify-between items-center mb-10 sm:mb-12">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500 flex items-center justify-center">
+            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
             Classroom Downloader
           </h1>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-zinc-400 hidden sm:inline">{session?.user?.email}</span>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="text-zinc-400 hidden lg:inline text-sm">{session?.user?.email}</span>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/20 transition-all text-zinc-400 hover:text-red-400"
+            className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/20 transition-all text-zinc-400 hover:text-red-400"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto pb-20">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="text-3xl font-bold mb-2 text-white">My Courses</h2>
-            <p className="text-zinc-400">Select a course to download all its materials or ask the AI.</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-8 sm:mb-12">
+          <div className="max-w-md">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white">My Courses</h2>
+            <p className="text-zinc-400 text-sm sm:text-base">Select a course to download all its materials or ask the AI.</p>
           </div>
           <button 
             disabled={downloading !== null}
-            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl font-semibold transition-all shadow-lg shadow-purple-500/20"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl font-semibold transition-all shadow-lg shadow-purple-500/20 text-sm sm:text-base"
           >
             <FolderDown className="w-5 h-5" />
             Download All Courses

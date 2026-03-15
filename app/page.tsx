@@ -16,19 +16,19 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
       </div>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-20 sm:pt-32 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-purple-400 mb-8 backdrop-blur-sm">
-            <Sparkles className="w-3.0 h-3.0" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] sm:text-xs font-medium text-purple-400 mb-6 sm:mb-8 backdrop-blur-sm">
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Simplify your learning workflow</span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-6 sm:mb-8">
             <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
               Download everything
             </span>
@@ -36,7 +36,7 @@ export default function Home() {
             <span className="text-white">with one click.</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 sm:mb-12 leading-relaxed">
             The ultimate tool for Google Classroom. Access all your study materials, 
             assignments, and attachments in seconds. No more tedious manual downloads.
           </p>
