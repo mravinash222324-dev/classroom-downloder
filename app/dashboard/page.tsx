@@ -458,7 +458,7 @@ export default function Dashboard() {
 
                   {/* Right Column: Micro Slides */}
                   <div className="lg:col-span-8">
-                    <MicroSlides slides={studyData.microSlides} />
+                    <MicroSlides sections={studyData.studySections} />
                   </div>
                 </motion.div>
               ) : (

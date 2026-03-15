@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     
     Based on these materials, generate a JSON object with three parts:
     1. "knowledgeMap": A list of topics (nodes) and their relationships (edges).
-    2. "youtubeFinder": A list of 3 high-quality YouTube tutorial recommendations (search queries/titles) with a brief reason why they fit.
-    3. "microSlides": A list of 10-15 extremely concise study cards (title, summary, one key takeaway).
+    2. "youtubeFinder": A list of 3 high-quality YouTube tutorial recommendations.
+    3. "studySections": A list of 6-8 comprehensive study sections. Each section should be detailed (not just a summary) and follow a textbook/cheat-sheet style.
 
     Materials Context:
     ${contextString}
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         "edges": [{ "from": "Topic A", "to": "Topic B", "label": "Connection type" }]
       },
       "youtubeRecommendations": [{ "title": "Topic Name", "searchQuery": "YouTube Search Term", "reason": "Why this is recommended" }],
-      "microSlides": [{ "title": "Short Title", "summary": "1-2 sentence max summary", "keyTakeaway": "Single core fact or formula" }]
+      "studySections": [{ "id": 1, "title": "Section Title", "content": "Detailed explanatory text including definitions, bullet points, or formulas. Make it dense and educational like a textbook page." }]
     }
 
     Ensure the data is accurate to the context provided. Do not include any text outside the JSON block.`
