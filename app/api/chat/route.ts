@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     // Try these models in order of preference
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"]
     let lastError;
 
     for (const modelName of modelsToTry) {
@@ -59,7 +59,9 @@ export async function POST(req: Request) {
       }
     }
 
-    throw lastError || new Error("All Gemini models failed. Please check your API key and region.")
+    throw new Error(
+      "All Gemini models failed (404). This usually means the 'Generative Language API' is not enabled in your Google Cloud Project or the API key doesn't have permission for these models."
+    )
 
   } catch (error: any) {
     console.error("Final Chat Error:", {
@@ -68,7 +70,7 @@ export async function POST(req: Request) {
       details: error.errorDetails
     })
     return NextResponse.json({ 
-      error: error.message || "Failed to communicate with AI. Please check your API key and network." 
+      error: error.message || "Failed to communicate with AI. Please check your API key and ensure 'Generative Language API' is enabled in Google Cloud Console." 
     }, { status: 500 })
   }
 }
