@@ -103,6 +103,7 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
           align-items: flex-start;
           gap: 0.375rem;
           line-height: 1;
+          break-after: avoid;
         }
 
         .section-content {
@@ -114,10 +115,10 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
         }
 
         @media print {
-          /* Force A4 Portrait */
+          /* Force A4 Portrait with Safe Margins */
           @page {
             size: A4 portrait;
-            margin: 12mm 10mm;
+            margin: 10mm 10mm;
           }
 
           /* Global Reset */
@@ -143,6 +144,7 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             padding: 0 !important;
             margin: 0 !important;
             overflow: visible !important;
+            z-index: auto !important;
           }
 
           :global(#study-insights-overlay header), :global(#interactive-study-tools), :global(#dashboard-main-content) {
@@ -156,30 +158,36 @@ export default function MicroSlides({ sections }: MicroSlidesProps) {
             margin: 0 !important;
             box-shadow: none !important;
             background: white !important;
+            border: none !important;
+            border-radius: 0 !important;
           }
 
           .column-container {
             display: block !important;
             column-count: 3 !important;
             column-gap: 8mm !important;
-            column-fill: balance !important; /* Tries to equalize column heights */
+            column-fill: auto !important; /* MUCH more stable for multi-page print than balance */
             width: 100% !important;
           }
 
           .study-section {
-            break-inside: avoid-column !important;
-            page-break-inside: avoid !important;
-            margin-bottom: 6mm !important;
+            break-inside: avoid !important;
             display: block !important;
+            margin-bottom: 5mm !important;
+            padding: 0 !important;
           }
 
           .section-title {
-            border-bottom: 1pt solid #ccc !important;
-            font-size: 9pt !important;
+            border-bottom: 1.5pt solid #111 !important;
+            font-size: 10pt !important;
+            margin-bottom: 2mm !important;
+            padding-bottom: 1.5mm !important;
+            break-after: avoid !important;
           }
 
           .section-content {
-            font-size: 8pt !important;
+            font-size: 9pt !important;
+            line-height: 1.3 !important;
             color: black !important;
           }
         }

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     Based on these materials, generate a JSON object with:
     1. "knowledgeMap": A list of topics (nodes) and their relationships (edges).
     2. "youtubeFinder": A list of 3 high-quality YouTube tutorial recommendations.
-    3. "studySections": A list of 10-12 VERY detailed study sections. Each section must be dense with definitions, core concepts, formulas, and explanations. Do not skip details. Think of it as a "cheat sheet" that contains almost everything from the module.
+    3. "studySections": A list of 14-16 VERY detailed study sections. Each section must be extremely dense with definitions, core concepts, formulas, and explanations. Do not skip any details. Think of it as a "complete module guide" compressed into a 3-column sheet. Each content block should be substantial in length.
 
     Materials Context:
     ${contextString}
