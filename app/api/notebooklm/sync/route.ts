@@ -100,30 +100,30 @@ export async function POST(req: Request) {
     const uniqueFiles = Array.from(new Set(allMaterials.map(f => f.id)))
       .map(id => allMaterials.find(f => f.id === id))
 
-    // 4. Create Shortcuts in the course folder
+    // 4. Create Copies in the course folder
     // Note: We only add files that aren't already there
-    const existingShortcuts = await drive.files.list({
+    const existingFiles = await drive.files.list({
       q: `'${courseFolderId}' in parents and trashed = false`,
-      fields: "files(shortcutDetails)",
+      fields: "files(originalFilename, name)",
     })
 
-    const existingTargetIds = new Set(
-      existingShortcuts.data.files?.map(f => f.shortcutDetails?.targetId) || []
+    const existingNames = new Set(
+      existingFiles.data.files?.map(f => f.name) || []
     )
 
     for (const file of uniqueFiles) {
-      if (!existingTargetIds.has(file.id)) {
+      if (!existingNames.has(file.title)) {
         try {
-          await drive.files.create({
+          await drive.files.copy({
+            fileId: file.id,
             requestBody: {
               name: file.title,
-              mimeType: "application/vnd.google-apps.shortcut",
-              shortcutDetails: { targetId: file.id },
               parents: [courseFolderId],
             }
           })
+          console.log(`Copied: ${file.title}`)
         } catch (e) {
-          console.error(`Failed to create shortcut for ${file.title}`, e)
+          console.error(`Failed to copy ${file.title}`, e)
         }
       }
     }

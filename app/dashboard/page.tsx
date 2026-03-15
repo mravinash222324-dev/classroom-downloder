@@ -327,17 +327,27 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3">
+                <a 
+                  href={syncSuccess.url} 
+                  target="_blank" 
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
+                >
+                  View in Google Drive <ExternalLink className="w-4 h-4" />
+                </a>
                 <a 
                   href="https://notebooklm.google.com" 
                   target="_blank" 
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all"
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all"
                 >
-                  Open NotebookLM <ExternalLink className="w-4 h-4" />
+                  Open NotebookLM <BrainCircuit className="w-4 h-4" />
                 </a>
+                <p className="text-[10px] text-zinc-500 text-center mt-2 px-4 italic">
+                  Tip: If the folder is empty, try logging out and back in to grant permissions.
+                </p>
                 <button 
                   onClick={() => setSyncSuccess(null)}
-                  className="px-6 py-3 bg-white/5 text-zinc-400 font-bold rounded-2xl hover:bg-white/10 transition-all"
+                  className="mt-2 text-zinc-400 hover:text-white text-sm font-medium transition-colors"
                 >
                   Close
                 </button>
