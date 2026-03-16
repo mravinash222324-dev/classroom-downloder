@@ -66,16 +66,26 @@ export async function POST(req: Request) {
     const results = await Promise.all(parsingPromises)
     aggregatedContent += results.join("\n\n---\n\n")
 
-    const prompt = `You are an Encyclopedic Professor. Course: "${courseName}". Generate a VAST, ELABORATE, MASTER-CLASS study sheet. Density is priority. 32 sections. Academic tone. Standalone lessons. Fill the space.
+    const prompt = `You are a Strategic Academic Expert and Exam Specialist. 
+    Course: "${courseName}". 
+    
+    TASK: Generate a CRITICALLY DENSE, HIGH-YIELD, and ESSENTIAL study sheet. 
+    Priority: FOCUS ONLY ON IMPORTANT CONCEPTS, EXAM-RELEVANT THEORIES, AND CORE PRINCIPLES. 
+    Filter out any "fluff", redundant intro/outro text, or unimportant metadata from the source materials.
+    
+    Structure (32 precise sections):
+    1. "knowledgeMap": The CORE conceptual hierarchy and critical dependencies.
+    2. "youtubeRecommendations": 3 high-value, highly-relevant educational videos.
+    3. "studySections": 25-32 high-density deep dives into ESSENTIAL topics. Each must be a standalone lesson focused on CRITICAL knowledge, technical definitions (bold), and exam-likely edge cases. 
  
-    CONTENT:
+    RESOURCES CONTENT (Filter for importance):
     ${aggregatedContent.slice(0, 50000)}
  
     Return EXACTLY this JSON structure:
     {
       "knowledgeMap": { "nodes": [], "edges": [] },
       "youtubeRecommendations": [],
-      "studySections": [{ "id": 1, "title": "...", "content": "..." }]
+      "studySections": [{ "id": 1, "title": "Critical Concept Title", "content": "Densely packed essential information. Use bullet points (•) for key facts. Bold crucial terms. No filler." }]
     }`
 
     // Synchronize with models used in /api/chat
