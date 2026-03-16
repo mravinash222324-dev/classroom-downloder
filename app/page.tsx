@@ -107,8 +107,15 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-12 text-center text-zinc-500 text-sm">
-        <p>&copy; 2026 ClassroomDownloader. Crafted for excellence.</p>
+      <footer className="relative z-10 border-t border-white/5 py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-zinc-500 text-sm">&copy; 2026 ClassroomDownloader. Crafted for excellence.</p>
+          <div className="flex items-center gap-8">
+            <Link href="/privacy" className="text-zinc-500 hover:text-white transition-colors text-sm">Privacy Policy</Link>
+            <Link href="/tos" className="text-zinc-500 hover:text-white transition-colors text-sm">Terms of Service</Link>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-white transition-colors text-sm">GitHub</a>
+          </div>
+        </div>
       </footer>
     </div>
   )
